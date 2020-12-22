@@ -46,11 +46,8 @@
     <div id="position">
         <h2 style = "color:#A4CCE5">Indigenous Territories of the Pacific Salmon Commission Panels <br></h2>
         <hr size = "2" noshade color="#A4CCE5">
-        <body> <br> Salmon is at the heart of the culture and wellbeing of Tribes and First Nations of the Pacific Northwest. With
-            salmon populations in decline across the region, it is important to broaden understanding of the breadth and
-            depth of sociocultural values associated with salmon, particularly as those values relate to the well-being of
-            Indigenous Peoples, Tribes and First Nations. <br> </body>
-        <h4><br>Hover over the map to see which Indigenous Territories are located there. <br></h4>
+        <body> <br> Hover over the map to see which Indigenous Territories are intersected by the Pacific Salmon Commission’s regional panels. <br> <br> </body>
+
         <body> <i>SOURCE: <a href = "https://native-land.ca" style = "color:#A4CCE5">native-land.ca</a></i></body>
     </div>
     <script>
@@ -62,7 +59,7 @@
             zoom: 3.2,
             center: [-142, 58]
         });
-
+        var hoveredStateId = null;
         map.on('load', function () {
             //YOUR TURN: Replace with a link to your CSV
             const csvUrl = 'https://raw.githubusercontent.com/alin7138/ee_psc_map/main/IndigenousTerritories_PanelsOnly.csv';
@@ -96,11 +93,40 @@
                             'layout': {},
                             'paint': {
                                 'fill-color': "#FFC500",
-                                'fill-opacity': 0.1
-
+                                'fill-opacity': 0
                             }
 
-    });
+                        });
+                        map.addLayer({
+                            'id': 'state-fills',
+                            'type': 'fill',
+                            'source': 'states',
+                            'layout': {},
+                            'paint': {
+                                'fill-color': "#FFC500",
+                                'fill-opacity': [
+                                    'case',
+                                    ['boolean', ['feature-state', 'hover'], false],
+                                    0.5,
+                                    0.1
+                            ]
+                            }
+
+                        });
+                        map.addLayer({
+                            'id': 'IndigenousTerritories_PanelsO-2mhybg-line',
+                            'type': 'line',
+                            'source': 'IndigenousTerritories_PanelsO-2mhybg',
+                            'source-layer': 'IndigenousTerritories_PanelsO-2mhybg',
+                            'layout': {
+                                'line-join': 'round',
+                                'line-cap': 'round'
+                            },
+                            'paint': {
+                                'line-color': '#BA9141',
+                                'line-width': 0.25
+                            }
+                        });
                           
                     })
                 }
@@ -111,6 +137,12 @@
                 url: 'mapbox://alin7138.31c9kemx',
                 promoteId: 'OBJECTID'
             });
+            
+            map.addSource('states', {
+                type: 'geojson',
+                data:'https://raw.githubusercontent.com/alin7138/ee_psc_map/main/IndigenousTerritories_PanelsOnly_id.geojson'
+            });
+
         });
 
         var popup = new mapboxgl.Popup({
@@ -131,15 +163,41 @@
                 content += props.Name + '<br>';
             }
             popup.setLngLat(e.lngLat).setHTML(content).addTo(map);
+
  
         });
-
-        map.on('mouseleave', 'county-fill', function () {
+        map.on('mouseleave', 'IndigenousTerritories_PanelsO-2mhybg-fill', function () {
             map.getCanvas().style.cursor = '';
             popup.remove()
 
-
         });
+        // map.on('mousemove', 'state-fills', function (e) {
+        //     if (e.features.length > 0) {
+        //         if (hoveredStateId) {
+        //             map.setFeatureState(
+        //                 { source: 'states', id: hoveredStateId },
+        //                 { hover: false }
+        //             );
+        //         }
+        //         hoveredStateId = e.features[0].id;
+        //         map.setFeatureState(
+        //             { source: 'states', id: hoveredStateId },
+        //             { hover: true }
+        //         );
+        //     }
+        // });
+
+        // // When the mouse leaves the state-fill layer, update the feature state of the
+        // // previously hovered feature.
+        // map.on('mouseleave', 'state-fills', function () {
+        //     if (hoveredStateId) {
+        //         map.setFeatureState(
+        //             { source: 'states', id: hoveredStateId },
+        //             { hover: false }
+        //         );
+        //     }
+        //     hoveredStateId = null;
+        // });
 
 
     </script>
